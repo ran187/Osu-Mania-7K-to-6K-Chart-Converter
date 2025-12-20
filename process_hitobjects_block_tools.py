@@ -117,6 +117,7 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
     interval: 按键信息  
     """
     track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
+    time_list = sorted(key_shapes.keys())
 
     # 定义一个函数, 使7k的012轨道映射到6k的012轨道, 7k的456轨道映射到6k的345轨道
     def change_track_num(track_index): 
@@ -125,7 +126,7 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
         elif track_index in (4, 5, 6):
             return track_index - 1
         
-    if is_die(key_shapes, interval['start']):
+    if is_die(key_shapes, interval['start'], time_list):
         for track_index in track_indexs:
             if is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP):
                 new_track = change_track_num(track_index)
@@ -136,7 +137,7 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
     else:
         for track_index in track_indexs:
             if is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP) and \
-                is_still_qie(key_shapes, interval['start'], track_index):
+                is_still_qie(key_shapes, interval['start'], track_index, time_list):
                 new_track = change_track_num(track_index)
                 min_x, max_x = global_config.TRACK_RANGES_6[new_track]
                 new_x = (min_x + max_x) // 2
@@ -152,7 +153,8 @@ def process_4th_track_hold(key_shapes, track_bitmaps, interval):
     interval: 按键信息    
     """
     track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
-
+    time_list = sorted(key_shapes.keys())
+    
     # 定义一个函数, 使7k的012轨道映射到6k的012轨道, 7k的456轨道映射到6k的345轨道
     def change_track_num(track_index): 
         if track_index in (0, 1, 2):
@@ -174,13 +176,13 @@ def process_4th_track_hold(key_shapes, track_bitmaps, interval):
     return process_4th_track_note(key_shapes, track_bitmaps, interval)
 
 
-def get_pre_next_time(key_shapes, time):
+def get_pre_next_time(key_shapes, time, time_list):
     """
     获取某一时间刻的前一个和后一个时间刻  
     key_shapes: 键型图  
     time: 时间刻
     """
-    time_list = sorted(key_shapes.keys())
+    # time_list = sorted(key_shapes.keys())
     pre_time = None
     next_time = None
     index = ott.binary_search(time_list, time)
@@ -192,13 +194,13 @@ def get_pre_next_time(key_shapes, time):
     return pre_time, next_time
 
 
-def is_die(key_shapes, time):
+def is_die(key_shapes, time, time_list):
     """
     简单判断是否为叠  
     key_shapes: 键型图  
     time: 时间刻
     """
-    pre_time, next_time = get_pre_next_time(key_shapes, time)
+    pre_time, next_time = get_pre_next_time(key_shapes, time, time_list)
 
     for i in range(7):
         if pre_time is not None and (key_shapes[time][i] & key_shapes[pre_time][i]) == 1:
@@ -208,19 +210,19 @@ def is_die(key_shapes, time):
     return False
 
 
-def is_qie(key_shapes, time):
+def is_qie(key_shapes, time, time_list):
     """
     简单判断是否为切  
     key_shapes: 键型图  
     time: 时间刻
     """
-    if not is_die(key_shapes, time):
+    if not is_die(key_shapes, time, time_list):
         return True
     else:
         return False
 
 
-def is_still_qie(key_shapes, time, target_track):
+def is_still_qie(key_shapes, time, target_track, time_list):
     """
     模拟测试按键放在其他轨道上, 键型仍然为切  
     key_shapes: 键型图 
@@ -231,7 +233,7 @@ def is_still_qie(key_shapes, time, target_track):
     key_shapes[time][target_track] = 1
     simu_is_qie = False
     
-    if is_qie(key_shapes, time):
+    if is_qie(key_shapes, time, time_list):
         simu_is_qie = True
 
     key_shapes[time][3] = 1
@@ -256,6 +258,7 @@ def is_interval_translatable(interval, target_track_bitmap, min_gap):
         if time_point < bitmap_lenth and target_track_bitmap[time_point] == 1:
             return False
     return True
+
 
 
 
