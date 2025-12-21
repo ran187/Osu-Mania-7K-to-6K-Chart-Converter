@@ -1,5 +1,5 @@
 """
-process_osu_tools.py中用到的函数
+process_osu_tools.py中用到的函数 
 """ 
 
 
@@ -8,12 +8,12 @@ import other_tools as ott
 
 def validate_osu_header(file_path): 
     """
-    校验文件格式是否为v14版本  
+    校验文件格式是否为v14或v12版本  
     file_path: 文件路径  
     """
     with open(file_path, 'r',encoding='utf-8') as file:
         for line in file:
-            return ott.clean_for_match(line) == "osufileformatv14"
+            return (ott.clean_for_match(line) == "osufileformatv14" or ott.clean_for_match(line) == "osufileformatv12")
         return False
 
 
