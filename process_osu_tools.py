@@ -1,5 +1,5 @@
 """
-main.py中函数process_osu_tool用到的函数
+main.py中函数process_osu_tool用到的函数 
 """
 
 
@@ -13,7 +13,7 @@ def parse_osu_file(file_path):
     file_path:文件路径  
     """
     if not pat.validate_osu_header(file_path):
-        print("osu文件不是v14版本")
+        print("不支持的osu文件版本")
         return None, None
 
     if not pat.check_is_7k(file_path):
