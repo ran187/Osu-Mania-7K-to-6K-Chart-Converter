@@ -1,5 +1,5 @@
 """
-一些泛用函数
+一些泛用函数 
 """
 
 
@@ -8,7 +8,12 @@ def clean_for_match(line):
     清理字符串 (移除空格和换行符) , 用于格式匹配  
     line: 原始字符串  
     """
-    return line.replace(" ", "").replace("\n", "").replace("\r", "")
+    return (
+        line.replace(" ", "")
+        .replace("\n", "")
+        .replace("\r", "")
+        .replace("\ufeff", "")
+    )
 
 
 def binary_search(seq, num):
