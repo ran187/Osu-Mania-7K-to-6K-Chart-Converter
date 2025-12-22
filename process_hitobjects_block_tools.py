@@ -172,6 +172,10 @@ def is_interval_translatable(interval, target_track_bitmap, min_gap):
 
 
 def process_4th_track_note(key_shapes, track_bitmaps, interval):
+    """
+    对中间轨道的大多数按键直接删除  
+    对3种特殊情况分别处理
+    """
     track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
     time_list = sorted(key_shapes.keys())
     key_num = get_key_num(key_shapes, interval['start'])
@@ -189,11 +193,6 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
             is_interval_translatable(interval, track_bitmaps[2], global_config.MIN_TIME_GAP)
         ):
             new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 200))
-        if (
-            is_special_die(key_shapes, interval['start'], time_list) and \
-            is_interval_translatable(interval, track_bitmaps[4], global_config.MIN_TIME_GAP) 
-        ):
-            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 300))
         return new_hit_line
     if key_num == 1:
         if is_qie_a(key_shapes, interval['start'], time_list, 3):
@@ -209,7 +208,6 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
                     return new_hit_line
         else:
             new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 200))
-            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 300))
             return new_hit_line
 
 
@@ -221,55 +219,35 @@ def get_track_next_time(track_bitmaps, time, target_track):
     return bitmap_lenth - 1
 
 
-# 摆烂了
 def process_4th_track_hold(track_bitmaps, interval):
-    new_hit_line = []
-    m =[]
-    for i in (2, 4):
-        a = get_track_next_time(track_bitmaps, interval['start'], i)
-        if a - global_config.MIN_TIME_GAP >= interval['end']:
-            c = interval['end']
-            m.append(c)
-        elif (
-            a -global_config.MIN_TIME_GAP<interval['end'] and \
-            a - global_config.MIN_TIME_GAP > interval['start']
-            ):
-            c = a-global_config.MIN_TIME_GAP
-            m.append(c)
-        else:
-            continue
-    if abs(m[0] - interval['end']) > abs(m[1] - interval['end']):
-        c1 = m[1]
-        i1 = 4
-        c2 = m[0]
-        i2 = 2
+    """
+    让长按键在谱面比较稀疏时一般能移到第3轨道(1-7)  
+    而在谱面比较密集时, 尽努力移到第3轨道  
+    移动成功概率受global_config.MIN_TIME_GAP影响  
+    """
+    # 变量名摆烂了
+    z = []
+    a = get_track_next_time(track_bitmaps, interval['start'], 2)
+    if a - global_config.MIN_TIME_GAP > interval['end']:
+        c = interval['end']
+    elif(
+        a - global_config.MIN_TIME_GAP < interval['end'] and \
+        a - global_config.MIN_TIME_GAP > interval['start'] 
+    ):
+        c = a - global_config.MIN_TIME_GAP
     else:
-        c1 = m[0]
-        i1 = 2
-        c2 = m[1]
-        i2 = 4
+        c = -1
+
     x = True
     for j in range(interval['start'] - global_config.MIN_TIME_GAP, interval['start'] + 1):
-        if track_bitmaps[i1][j] == 1:
+        if track_bitmaps[2][j] == 1:
             x = False
-    if x == True:
+
+    if x == True and c != -1:
         d = interval['original_line'].split(',')
         e = d[5].split(':')
-        e[0] = str(c1)
+        e[0] = str(c)
         d[5] = ':'.join(e)
         y = ','.join(d)
-        new_hit_line.append(generate_new_hitobject_line(y, 1, i1 * 50 + 100))
-    elif x == False:
-        x = True
-        for j in range(interval['start'] - global_config.MIN_TIME_GAP, interval['start'] + 1):
-            if track_bitmaps[i2][j] == 1:
-                x = False
-        if x == True:
-            d = interval['original_line'].split(',')
-            e = d[5].split(':')
-            e[0] = str(c2)
-            d[5] = ':'.join(e)
-            y = ','.join(d)
-            new_hit_line.append(generate_new_hitobject_line(y, 1, i1 * 50 + 100))
-
-    return new_hit_line
+        z.append(generate_new_hitobject_line(y, 1, 200))
+        return z
