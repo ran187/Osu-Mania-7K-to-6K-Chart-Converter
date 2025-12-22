@@ -100,91 +100,60 @@ def trans_4th_track(key_shapes, track_bitmaps, interval):
     if not interval['is_hold']:
         hit_line = process_4th_track_note(key_shapes, track_bitmaps, interval)
     elif interval['is_hold']:
-        hit_line = process_4th_track_hold(key_shapes, track_bitmaps, interval)
+        hit_line = process_4th_track_hold(track_bitmaps, interval)
     return hit_line
-
-
 
 
 # ========== 以下函数被trans_4th_track调用 ========== 
 
 
-def process_4th_track_note(key_shapes, track_bitmaps, interval):
-    """
-    按照一定策略处理note  
-    key_shapes: 键型图  
-    track_bitmaps: 轨道位图  
-    interval: 按键信息  
-    """
-    track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
-    time_list = sorted(key_shapes.keys())
-
-    # 定义一个函数, 使7k的012轨道映射到6k的012轨道, 7k的456轨道映射到6k的345轨道
-    def change_track_num(track_index): 
-        if track_index in (0, 1, 2):
-            return track_index
-        elif track_index in (4, 5, 6):
-            return track_index - 1
-        
-    if is_die(key_shapes, interval['start'], time_list):
-        for track_index in track_indexs:
-            if is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP):
-                new_track = change_track_num(track_index)
-                min_x, max_x = global_config.TRACK_RANGES_6[new_track]
-                new_x = (min_x + max_x) // 2
-                new_hit_line = generate_new_hitobject_line(interval['original_line'], 1, new_x)
-                return new_hit_line
-    else:
-        for track_index in track_indexs:
-            if is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP) and \
-                is_still_qie(key_shapes, interval['start'], track_index, time_list):
-                new_track = change_track_num(track_index)
-                min_x, max_x = global_config.TRACK_RANGES_6[new_track]
-                new_x = (min_x + max_x) // 2
-                new_hit_line = generate_new_hitobject_line(interval['original_line'], 1, new_x)
-                return new_hit_line
+def get_key_num(key_shapes, time):
+    key_num = 0
+    for i in range(0, 7):
+        if key_shapes[time][i] == 1:
+            key_num = key_num + 1
+    return key_num
 
 
-def process_4th_track_hold(key_shapes, track_bitmaps, interval):
-    """
-    按照一定策略处理hold  
-    key_shapes: 键型图  
-    track_bitmaps: 轨道位图  
-    interval: 按键信息    
-    """
-    track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
-    
-    # 定义一个函数, 使7k的012轨道映射到6k的012轨道, 7k的456轨道映射到6k的345轨道
-    def change_track_num(track_index): 
-        if track_index in (0, 1, 2):
-            return track_index
-        elif track_index in (4, 5, 6):
-            return track_index - 1
-        
-    for track_index in track_indexs:
-        if is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP):
-            new_track = change_track_num(track_index)
-            min_x, max_x = global_config.TRACK_RANGES_6[new_track]
-            new_x = (min_x + max_x) // 2
-            new_hit_line = generate_new_hitobject_line(interval['original_line'], 1, new_x)
-            return new_hit_line
-    
-    interval['end'] = interval['start']
-    interval['original_line'] = f"{interval['original_x']},192,{interval['start']},1,0,0:0:0:0:"
-    interval['is_hold'] = 0
-    return process_4th_track_note(key_shapes, track_bitmaps, interval)
+def is_special_die(key_shapes, time, time_list):
+    pre_time, next_time = get_pre_next_time(time, time_list)
+    if pre_time and (
+            key_shapes[time][0] & key_shapes[pre_time][0] == 0 and \
+            key_shapes[time][1] & key_shapes[pre_time][1] == 0 and \
+            key_shapes[time][2] & key_shapes[pre_time][2] == 0 and \
+            key_shapes[time][3] & key_shapes[pre_time][3] == 1 and \
+            key_shapes[time][4] & key_shapes[pre_time][4] == 0 and \
+            key_shapes[time][5] & key_shapes[pre_time][5] == 0 and \
+            key_shapes[time][6] & key_shapes[pre_time][6] == 0 
+        ):
+            return True
+    if next_time and (
+            key_shapes[time][0] & key_shapes[next_time][0] == 0 and \
+            key_shapes[time][1] & key_shapes[next_time][1] == 0 and \
+            key_shapes[time][2] & key_shapes[next_time][2] == 0 and \
+            key_shapes[time][3] & key_shapes[next_time][3] == 1 and \
+            key_shapes[time][4] & key_shapes[next_time][4] == 0 and \
+            key_shapes[time][5] & key_shapes[next_time][5] == 0 and \
+            key_shapes[time][6] & key_shapes[next_time][6] == 0 
+        ):
+            return True
+    return False
+
+
+def is_qie_a(key_shapes, time, time_list, target_tarck):
+    pre_time, next_time = get_pre_next_time(time, time_list)
+    a = b = True
+    if pre_time and key_shapes[pre_time][target_tarck] == 1:
+            a = False
+    if next_time and key_shapes[next_time][target_tarck] == 1:
+            b = False
+    return (a and b)
 
 
 def get_pre_next_time(time, time_list):
-    """
-    获取某一时间刻的前一个和后一个时间刻  
-    time: 时间刻
-    time_list: 时间刻的升序列表
-    """
     pre_time = None
     next_time = None
     index = ott.binary_search(time_list, time)
-
     if index > 0:
         pre_time = time_list[index - 1]
     if index < len(time_list) - 1:
@@ -192,74 +161,115 @@ def get_pre_next_time(time, time_list):
     return pre_time, next_time
 
 
-def is_die(key_shapes, time, time_list):
-    """
-    简单判断是否为叠  
-    key_shapes: 键型图  
-    time: 时间刻
-    time_list: 时间刻的升序列表
-    """
-    pre_time, next_time = get_pre_next_time(time, time_list)
-
-    for i in range(7):
-        if pre_time is not None and (key_shapes[time][i] & key_shapes[pre_time][i]) == 1:
-            return True
-        if next_time is not None and (key_shapes[time][i] & key_shapes[next_time][i]) == 1:
-            return True
-    return False
-
-
-def is_qie(key_shapes, time, time_list):
-    """
-    简单判断是否为切  
-    key_shapes: 键型图  
-    time: 时间刻
-    time_list: 时间刻的升序列表
-    """
-    if not is_die(key_shapes, time, time_list):
-        return True
-    else:
-        return False
-
-
-def is_still_qie(key_shapes, time, target_track, time_list):
-    """
-    模拟测试按键放在其他轨道上, 键型仍然为切  
-    key_shapes: 键型图 
-    time: 时间刻  
-    target_track: 目标轨道  
-    time_list: 时间刻的升序列表
-    """
-    key_shapes[time][3] = 0
-    key_shapes[time][target_track] = 1
-    simu_is_qie = False
-    
-    if is_qie(key_shapes, time, time_list):
-        simu_is_qie = True
-
-    key_shapes[time][3] = 1
-    key_shapes[time][target_track] = 0
-
-    return simu_is_qie
-
-
-
 def is_interval_translatable(interval, target_track_bitmap, min_gap):
-    """
-    判断按键是否能迁移到目标轨道  
-    interval: 按键信息  
-    target_track_bitmap: 目标轨道的位图  
-    min_gap: 时间间隔, 按键转移后哪怕不重叠冲突, 也要留一定的时间间隔  
-    """
     extended_start = max(0, interval['start'] - min_gap)
     extended_end = interval['end'] + min_gap
     bitmap_lenth = len(target_track_bitmap)
-    
     for time_point in range(extended_start, extended_end + 1):
         if time_point < bitmap_lenth and target_track_bitmap[time_point] == 1:
             return False
     return True
 
 
+def process_4th_track_note(key_shapes, track_bitmaps, interval):
+    track_indexs = global_config.RANDOM_SEQUENCE_6[interval['start'] % 12]
+    time_list = sorted(key_shapes.keys())
+    key_num = get_key_num(key_shapes, interval['start'])
+    new_hit_line = []
+
+    def change_track_num(track_index): 
+        if track_index in (0, 1, 2):
+            return track_index
+        elif track_index in (4, 5, 6):
+            return track_index - 1
+
+    if key_num in range(2, 7):
+        if (
+            is_special_die(key_shapes, interval['start'], time_list) and \
+            is_interval_translatable(interval, track_bitmaps[2], global_config.MIN_TIME_GAP)
+        ):
+            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 200))
+        if (
+            is_special_die(key_shapes, interval['start'], time_list) and \
+            is_interval_translatable(interval, track_bitmaps[4], global_config.MIN_TIME_GAP) 
+        ):
+            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 300))
+        return new_hit_line
+    if key_num == 1:
+        if is_qie_a(key_shapes, interval['start'], time_list, 3):
+            for track_index in track_indexs:
+                if (
+                    is_interval_translatable(interval, track_bitmaps[track_index], global_config.MIN_TIME_GAP) and \
+                    is_qie_a(key_shapes, interval['start'], time_list, track_index)
+                ):
+                    new_track = change_track_num(track_index)
+                    min_x, max_x = global_config.TRACK_RANGES_6[new_track]
+                    new_x = (min_x + max_x) // 2
+                    new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, new_x))
+                    return new_hit_line
+        else:
+            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 200))
+            new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 300))
+            return new_hit_line
 
 
+def get_track_next_time(track_bitmaps, time, target_track):
+    bitmap_lenth = len(track_bitmaps[0])
+    for i in range(time + 1, bitmap_lenth):
+        if track_bitmaps[target_track][i] == 1:
+            return i
+    return bitmap_lenth - 1
+
+
+# 摆烂了
+def process_4th_track_hold(track_bitmaps, interval):
+    new_hit_line = []
+    m =[]
+    for i in (2, 4):
+        a = get_track_next_time(track_bitmaps, interval['start'], i)
+        if a - global_config.MIN_TIME_GAP >= interval['end']:
+            c = interval['end']
+            m.append(c)
+        elif (
+            a -global_config.MIN_TIME_GAP<interval['end'] and \
+            a - global_config.MIN_TIME_GAP > interval['start']
+            ):
+            c = a-global_config.MIN_TIME_GAP
+            m.append(c)
+        else:
+            continue
+    if abs(m[0] - interval['end']) > abs(m[1] - interval['end']):
+        c1 = m[1]
+        i1 = 4
+        c2 = m[0]
+        i2 = 2
+    else:
+        c1 = m[0]
+        i1 = 2
+        c2 = m[1]
+        i2 = 4
+    x = True
+    for j in range(interval['start'] - global_config.MIN_TIME_GAP, interval['start'] + 1):
+        if track_bitmaps[i1][j] == 1:
+            x = False
+    if x == True:
+        d = interval['original_line'].split(',')
+        e = d[5].split(':')
+        e[0] = str(c1)
+        d[5] = ':'.join(e)
+        y = ','.join(d)
+        new_hit_line.append(generate_new_hitobject_line(y, 1, i1 * 50 + 100))
+    elif x == False:
+        x = True
+        for j in range(interval['start'] - global_config.MIN_TIME_GAP, interval['start'] + 1):
+            if track_bitmaps[i2][j] == 1:
+                x = False
+        if x == True:
+            d = interval['original_line'].split(',')
+            e = d[5].split(':')
+            e[0] = str(c2)
+            d[5] = ':'.join(e)
+            y = ','.join(d)
+            new_hit_line.append(generate_new_hitobject_line(y, 1, i1 * 50 + 100))
+
+    return new_hit_line
