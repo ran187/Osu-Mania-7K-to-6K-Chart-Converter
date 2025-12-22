@@ -86,7 +86,7 @@ def process_hitobjects_block(hitobjects_lines):
         saj = prh.trans_4th_track(key_shapes, track_bitmaps, interval)
         if saj:
             # print(saj)
-            new_hit_lines.append(saj)        
+            new_hit_lines.extend(saj)        
   
     # 定义一个函数用于获取排序键, (元组的第一个元素，即时间)
     def get_time(item):
