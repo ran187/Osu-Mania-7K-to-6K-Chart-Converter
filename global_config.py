@@ -10,7 +10,7 @@ DOWNLOADS_PATH = "~/Downloads"
 DESKTOP_PATH = "~/Desktop"
 
 # 最小时间间隔 (毫秒) : 用于判断按键是否冲突, 区间首尾会各扩展该值避免冲突
-MIN_TIME_GAP = 125
+MIN_TIME_GAP = 198
 
 # 7K各轨道的X坐标范围 (最小值, 最大值) , 对应轨道0到6 (第一到第七轨道) 
 TRACK_RANGES_7 = [
