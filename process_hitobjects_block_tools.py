@@ -206,7 +206,7 @@ def process_4th_track_note(key_shapes, track_bitmaps, interval):
                     new_x = (min_x + max_x) // 2
                     new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, new_x))
                     return new_hit_line
-        else:
+        elif is_interval_translatable(interval, track_bitmaps[2], global_config.MIN_TIME_GAP):
             new_hit_line.append(generate_new_hitobject_line(interval['original_line'], 1, 200))
             return new_hit_line
 
@@ -250,4 +250,5 @@ def process_4th_track_hold(track_bitmaps, interval):
         d[5] = ':'.join(e)
         y = ','.join(d)
         z.append(generate_new_hitobject_line(y, 1, 200))
+
         return z
