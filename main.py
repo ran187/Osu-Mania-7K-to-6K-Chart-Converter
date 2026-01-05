@@ -1,5 +1,5 @@
 import tkinter as tk
-form tkinter import filedalog
+form tkinter import filedialog
 import os
 import zipfile
 import shutill
@@ -70,7 +70,7 @@ def process_osz(file_path, only_keep_6k):
                 zip_f.write(file_path2, arcname)
     print(f"  处理后的所有谱面已保存至 {output_path}")
     
-    shutil.rmtree(temp_dir)
+    shutill.rmtree(temp_dir)
     print("  临时目录已删除")
     
     
