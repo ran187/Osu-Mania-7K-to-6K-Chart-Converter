@@ -1,23 +1,23 @@
 import tkinter as tk
-form tkinter import filedialog
+from tkinter import filedialog
 import os
 import zipfile
-import shutill
+import shutil
 import global_config as gc
 import process_osu as po
 
 
-def create_main_windows():
-    root = tk.TK()
+def create_main_window():
+    root = tk.Tk()
     root.title("OSU!MANIA 7 to 6")
-    root.geometry("320×240")
+    root.geometry("320*240")
     only_keep_6k = tk.BooleanVar(value = True)
     
     def on_button_click():
         file_path = filedialog.askopenfilename(
             initialdir = os.path.expanduser(gc.DOWNLOADS_PATH),
-            title = "选择文件"
-            filetypes = (".osz", "*.osz")
+            title = "选择文件",
+            filetypes = ((".osz", "*.osz"),)
         )
         
         if file_path:
@@ -48,7 +48,7 @@ def process_osz(file_path, only_keep_6k):
     temp_dir = os.path.join(os.path.expanduser(gc.DESKTOP_PATH), "temp_osu")
     
     if os.path.exists(temp_dir):
-        shutill.rmtree(temp_dir)
+        shutil.rmtree(temp_dir)
     os.makedirs(temp_dir)
     
     with zipfile.ZipFile(file_path, "r") as zip_f:
@@ -70,9 +70,9 @@ def process_osz(file_path, only_keep_6k):
                 zip_f.write(file_path2, arcname)
     print(f"  处理后的所有谱面已保存至 {output_path}")
     
-    shutill.rmtree(temp_dir)
+    shutil.rmtree(temp_dir)
     print("  临时目录已删除")
     
     
 if __name__ == "__main__":
-    create_main_windows()
+    create_main_window()
