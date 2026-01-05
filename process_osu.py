@@ -1,3 +1,4 @@
+import os
 import ssaj as a
 import global_config as gc
 
@@ -28,10 +29,10 @@ def process_osu(file_path):
             if current_block and line.strip():
                 current_lines.append(line)
     if current_block:
-        osu_blocks[current_block] = current_lines
+        osu_blocks[current_block] = current_lines.copy()
         
     if "[Metadata]" in osu_blocks:
-        osu_blocks["[Metadata]"] = a.modify_metadata_block(osu_blocks["[Metadat]"])
+        osu_blocks["[Metadata]"] = a.modify_metadata_block(osu_blocks["[Metadata]"])
         
     if "[Difficulty]" in osu_blocks:
         osu_blocks["[Difficulty]"] = a.modify_difficulty_block(osu_blocks["[Difficulty]"])
@@ -54,7 +55,7 @@ def process_osu(file_path):
     print("  谱面转换完成 ＋1")            
                 
     
-def modify_hitobjects_block(hitobjects_line):
+def modify_hitobjects_block(hitobjects_lines):
     track_data = {i:[] for i in range(7)}
     max_time = 0
     
@@ -74,9 +75,9 @@ def modify_hitobjects_block(hitobjects_line):
     for track_idx, hitobjects in track_data.items():
         if track_idx == 3:
             continue
-        for hitobject in hitojects:
+        for hitobject in hitobjects:
             six_track_num = a.change_track_num(track_idx)
-            new_x = 80 * six_track_idx + 50
+            new_x = 80 * six_track_num + 50
             new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], new_x)
             new_lines.append(new_line)
 
@@ -87,7 +88,7 @@ def modify_hitobjects_block(hitobjects_line):
         if new_line:
             new_lines.append(new_line)
             
-    new_lines.sort(key: lambda x: x.split(",")[2])
+    new_lines.sort(key = lambda x: x.split(",")[2])
     return new_lines                        
     
     
@@ -97,7 +98,7 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
         if(
             key_num in range(2, 7) and \
             a.is_special_die(track_bitmaps, hitobject["start"], time_list) and \
-            a.is_movable(hitobject["start"], track_bitmaps[2], gc.MINGAP)
+            a.is_movable(hitobject["start"], track_bitmaps[2], gc.MIN_GAP)
         ):          
             new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], 210)
             return new_line
@@ -108,7 +109,7 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
             track_seq = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6]
             for track_idx in track_seq:
                 if(
-                    a.is_movable(hitobject["start"], track_bitmaps[track_idx], gc.MINGAP) and \
+                    a.is_movable(hitobject["start"], track_bitmaps[track_idx], gc.MIN_GAP) and \
                     a.is_qie_a(track_bitmaps, hitobject["start"], track_idx, time_list)
                 ):
                     new_track = a.change_track_num(track_idx)
