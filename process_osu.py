@@ -147,13 +147,4 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
             return None
             
     else:
-        return None        e              else:
-            return None
-            
-    else:
-        return None        e        object_line_1(hitobject["original_line"], 370)
-            return new_line
-            
-        else:
-            return None
-            
+        return None
