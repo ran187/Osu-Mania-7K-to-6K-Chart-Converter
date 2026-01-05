@@ -13,12 +13,12 @@ def is_7k(file_path):
     with open(file_path, "r", encoding = "utf-8") as f:
         is_mania = False
         for line in f:
-            clean_line = clean_line(line)
-            if clean_line == "Mode:3":
+            cleaned_line = clean_line(line)
+            if cleaned_line == "Mode:3":
                 is_mania = True
-            elif is_mania and clean_line == "CircleSize:7":
+            elif is_mania and cleaned_line == "CircleSize:7":
                 return True
-            elif clean_line.startswith("CircleSize:") and clean_line != "CircleSize:7":
+            elif cleaned_line.startswith("CircleSize:") and cleaned_line != "CircleSize:7":
                 return False     
         return False       
         
@@ -34,11 +34,11 @@ def read_lines(file_path):
 def modify_metadata_block(metadata_lines):
     new_lines = []
     for line in metadata_lines:
-        if line.startswith("version:"):
+        if line.startswith("Version:"):
             new_lines.append(f"{line}_7to6")
         elif line.startswith("BeatmapID:"):
             new_lines.append("BeatmapID:")
-        elif:
+        else:
             new_lines.append(line)
     return new_lines                                 
 
@@ -55,7 +55,7 @@ def modify_difficulty_block(difficulty_lines):
 
 def read_first_line(file_path):
     with open(file_path, "r", encoding = "utf-8") as f:
-        first_line = file.readline.strip()
+        first_line = f.readline().strip()
         return first_line
 
 
@@ -63,7 +63,7 @@ def get_hit_info(line):
     parts = line.split(",")
     x = int(parts[0])
     time = int(parts[2])
-    type_value = int(part[3])
+    type_value = int(parts[3])
     is_hold = (type_value == 128)
     end_time = time
     
@@ -85,8 +85,8 @@ def x_to_track(x):
     
     
 def create_track_bitmaps(track_data, max_time):
-    bitmap_lenth = max_time + 1
-    track_bitmaps = [bytearray(bitmap_lenth) for _ in range(7)]
+    bitmap_length = max_time + 1
+    track_bitmaps = [bytearray(bitmap_length) for _ in range(7)]
     
     for track_idx, hitobjects in track_data.items():
         for hitobject in hitobjects:
@@ -104,7 +104,7 @@ def create_time_list(track_data):
     for track_idx, hitobjects in track_data.items():
         for hitobject in hitobjects:
             time_list.append(hitobject["start"])
-    return set(time_list.sort())
+    return sorted(set(time_list))
     
     
 def change_track_num(track_idx):
@@ -112,6 +112,8 @@ def change_track_num(track_idx):
         return track_idx
     elif track_idx in (4, 5, 6):
         return track_idx - 1
+    else:
+        return 10086
 
 
 def generate_new_hitobject_line_1(original_line, new_x):
@@ -183,8 +185,8 @@ def is_special_die_a(track_bitmaps, time, target_track, time_list):
     
     
 def get_track_next_time(target_track_bitmap, time):
-    bitmap_lenth = len(target_track_bitmap)
-    for t in range(time ＋ 1, bitmap_lenth):
+    bitmap_length = len(target_track_bitmap)
+    for t in range(time + 1, bitmap_length):
         if target_track_bitmap[t] >= 20:
             return t
     return bitmap_lenth - 1
@@ -194,9 +196,9 @@ def generate_new_hitobject_line_2(original_line, new_x, time_list):
     parts = original_line.split(",")
     parts[0] = str(new_x)
     if int(parts[2]) == time_list[0]:
-        parts[3] == "5"
+        parts[3] = "5"
     else:
-        parts[3] == "1"
+        parts[3] = "1"
     extras = parts[5].split(":")
     parts[5] = ":".join(extras[1:])
     return ",".join(parts)
@@ -226,7 +228,7 @@ def get_pre_next_time(time, time_list):
     
     
 def binary_search(seq, num):
-    lef = 0
+    left = 0
     right = len(seq) - 1
     while left <= right:
         mid = (left + right) // 2
