@@ -37,7 +37,7 @@ def process_osu(file_path):
         osu_blocks["[Difficulty]"] = a.modify_difficulty_block(osu_blocks["[Difficulty]"])
         
     if "[HitObjects]" in osu_blocks:
-        osu_blocks["[HitObjects]"] = a.modify_hitobjects_block(osu_blocks["[HitObjects]"])
+        osu_blocks["[HitObjects]"] = modify_hitobjects_block(osu_blocks["[HitObjects]"])
         
     file_dir, file_name = os.path.split(file_path)
     name_without_ext, ext = os.path.splitext(file_name)
