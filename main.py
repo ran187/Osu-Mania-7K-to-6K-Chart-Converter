@@ -10,7 +10,7 @@ import process_osu as po
 def create_main_window():
     root = tk.Tk()
     root.title("OSU!MANIA 7 to 6")
-    root.geometry("320*240")
+    root.geometry("320x240")
     only_keep_6k = tk.BooleanVar(value = True)
     
     def on_button_click():
