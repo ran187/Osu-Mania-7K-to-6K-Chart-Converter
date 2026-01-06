@@ -189,7 +189,7 @@ def get_track_next_time(target_track_bitmap, time):
     for t in range(time + 1, bitmap_length):
         if target_track_bitmap[t] >= 20:
             return t
-    return bitmap_lenth - 1
+    return bitmap_length - 1
     
     
 def generate_new_hitobject_line_2(original_line, new_x, time_list):
