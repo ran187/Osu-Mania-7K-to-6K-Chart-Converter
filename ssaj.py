@@ -1,4 +1,4 @@
-def is_validate_header(file_path):
+def is_validate_header(file_path): 
     first_line = read_first_line(file_path)
     if(
         first_line and \
