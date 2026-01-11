@@ -17,7 +17,7 @@ def create_main_window():
         file_path = filedialog.askopenfilename(
             initialdir = os.path.expanduser(gc.DOWNLOADS_PATH),
             title = "选择文件",
-            filetypes = ((".osz", "*.osz"),)
+            filetypes = (("osz", "*.osz"),)
         )
         
         if file_path:
