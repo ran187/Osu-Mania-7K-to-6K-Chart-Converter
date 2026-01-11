@@ -52,7 +52,7 @@ def process_osu(file_path):
             for line in osu_blocks.get(block, []):
                 f.write(f"{line}\n")
             f.write("\n")
-    print("  谱面转换完成 ＋1")            
+    print("  谱面转换完成 +1")            
                 
     
 def modify_hitobjects_block(hitobjects_lines):
@@ -81,14 +81,14 @@ def modify_hitobjects_block(hitobjects_lines):
             new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], new_x)
             new_lines.append(new_line)
 
-    track_bitmaps = a.create_track_bitmaps(track_data, max_time)     
+    track_bitmaps = a.create_track_bitmaps(track_data, max_time)   
     time_list = a.create_time_list(track_data)   
     for hitobject in track_data[3]:
         new_line = trans_4th_track(track_bitmaps, time_list, hitobject)
         if new_line:
             new_lines.append(new_line)
             
-    new_lines.sort(key = lambda x: x.split(",")[2])
+    new_lines.sort(key = lambda x: int(x.split(",")[2]))
     return new_lines                        
     
     
@@ -96,7 +96,7 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
     if not hitobject["is_hold"]:
         key_num = a.get_key_num(track_bitmaps, hitobject["start"])
         if(
-            key_num in range(2, 7) and \
+            key_num in range(1, 7) and \
             a.is_special_die(track_bitmaps, hitobject["start"], time_list) and \
             a.is_movable(hitobject["start"], track_bitmaps[2], gc.MIN_GAP)
         ):          
@@ -116,13 +116,6 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
                     new_x = 80 * new_track + 50
                     new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], new_x)
                     return new_line
-        elif(
-            key_num == 1 and \
-            a.is_special_die_a(track_bitmaps, hitobject["start"], 3, time_list) and \
-            a.is_movable(hitobject["start"], track_bitmaps[2], gc.MIN_GAP)
-        ):
-            new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], 210)
-            return new_line
         else:
             return None                
             
@@ -130,22 +123,15 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
         hitobject["is_hold"] and \
         a.is_movable(hitobject["start"], track_bitmaps[4], gc.MIN_GAP)
     ):
+        # pass
         next_time_4 = a.get_track_next_time(track_bitmaps[4], hitobject["start"])
-        if hitobject["start"] + gc.MIN_GAP > next_time_4:
-            new_line = a.generate_new_hitobject_line_2(hitobject["original_line"], 370, time_list)
+        if hitobject["start"] >= next_time_4 - gc.MIN_GAP:
+            new_line = a.generate_new_hitobject_line_2(hitobject["original_line"], 290, time_list)
             return new_line    
-        elif(
-            hitobject["start"] + gc.MIN_GAP <= next_time_4 and \
-            hitobject["end"] + gc.MIN_GAP > next_time_4
-        ):
-            new_end = next_time_4 - gc.MIN_GAP
-            new_line = a.generate_new_hitobject_line_3(hitobject["original_line"], 370, new_end)
-            return new_line
-        elif hitobject["end"] + gc.MIN_GAP <= next_time_4:
-            new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], 370)
-            return new_line
         else:
-            return None
+            new_end = min(next_time_4 - gc.MIN_GAP, hitobject["end"])
+            new_line = a.generate_new_hitobject_line_3(hitobject["original_line"], 290, new_end)
+            return new_line
             
     else:
         return None
