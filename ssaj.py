@@ -27,7 +27,7 @@ def read_lines(file_path):
     with open(file_path, "r", encoding = "utf-8") as f:
         lines = []
         for line in f:
-            lines.append(line.strip())
+            lines.append(line.rstrip())
         return lines
         
         
@@ -36,8 +36,8 @@ def modify_metadata_block(metadata_lines):
     for line in metadata_lines:
         if line.startswith("Version:"):
             new_lines.append(f"{line}_7to6")
-        elif line.startswith("BeatmapID:"):
-            new_lines.append("BeatmapID:")
+        # elif line.startswith("BeatmapID:"):
+        #     new_lines.append("BeatmapID:")
         else:
             new_lines.append(line)
     return new_lines                                 
@@ -55,7 +55,7 @@ def modify_difficulty_block(difficulty_lines):
 
 def read_first_line(file_path):
     with open(file_path, "r", encoding = "utf-8") as f:
-        first_line = f.readline().strip()
+        first_line = f.readline().rstrip()
         return first_line
 
 
@@ -175,7 +175,7 @@ def is_qie_a(track_bitmaps, time, target_track, time_list):
     return f1 and f2
     
     
-def is_special_die_a(track_bitmaps, time, target_track, time_list):
+# def is_special_die_a(track_bitmaps, time, target_track, time_list):
     pre_time, next_time = get_pre_next_time(time, time_list)
     if pre_time and track_bitmaps[target_track][pre_time] >= 20:
         return True
@@ -201,6 +201,7 @@ def generate_new_hitobject_line_2(original_line, new_x, time_list):
         parts[3] = "1"
     extras = parts[5].split(":")
     parts[5] = ":".join(extras[1:])
+    # parts[5] = "0:0:0:0:"
     return ",".join(parts)
     
     
