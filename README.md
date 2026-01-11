@@ -7,4 +7,4 @@
 ## 说明
  ① 这个工具可以把 osu!mania 的 7k 谱转成 6k 谱
  
- ② 目前支持 osu file format v12 和 v14 的谱面转换
+ ② 目前支持转换的谱面格式: osu file format v12 和 osu file format v14
