@@ -4,6 +4,8 @@ DESKTOP_PATH = "~/Desktop"
 
 MIN_GAP = 500
 
+MIN_GAP_2 = 250
+
 RANDOM_SEQUENCE_6 = [
     (0, 6, 4, 1, 2, 5),
     (1, 5, 0, 4, 2, 6),
