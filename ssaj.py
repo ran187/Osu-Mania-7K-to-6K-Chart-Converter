@@ -1,8 +1,12 @@
+import global_config as gc
+
+
 def is_validate_header(file_path): 
     first_line = read_first_line(file_path)
+    cleaned_line = clean_line(first_line)
     if(
         first_line and \
-        (clean_line(first_line) == "osufileformatv14" or clean_line(first_line) == "osufileformatv12")
+        (cleaned_line == "osufileformatv14" or cleaned_line == "osufileformatv12")
     ):
         return True
     else:
@@ -37,7 +41,7 @@ def modify_metadata_block(metadata_lines):
         if line.startswith("Version:"):
             new_lines.append(f"{line}_7to6")
         # elif line.startswith("BeatmapID:"):
-        #     new_lines.append("BeatmapID:")
+        #     new_lines.append("BeatmapID:9876543210")
         else:
             new_lines.append(line)
     return new_lines                                 
@@ -130,38 +134,17 @@ def get_key_num(track_bitmaps, time):
     return key_num
     
     
-def is_special_die(track_bitmaps, time, time_list):
-    pre_time, next_time = get_pre_next_time(time, time_list)
-    if pre_time and (
-        track_bitmaps[0][time] + track_bitmaps[0][pre_time] < 40 and \
-        track_bitmaps[1][time] + track_bitmaps[1][pre_time] < 40 and \
-        track_bitmaps[2][time] + track_bitmaps[2][pre_time] < 40 and \
-        track_bitmaps[3][time] + track_bitmaps[3][pre_time] >= 40 and \
-        track_bitmaps[4][time] + track_bitmaps[4][pre_time] < 40 and \
-        track_bitmaps[5][time] + track_bitmaps[5][pre_time] < 40 and \
-        track_bitmaps[6][time] + track_bitmaps[6][pre_time] < 40
-    ):
-        return True
-    if next_time and (
-        track_bitmaps[0][time] + track_bitmaps[0][next_time] < 40 and \
-        track_bitmaps[1][time] + track_bitmaps[1][next_time] < 40 and \
-        track_bitmaps[2][time] + track_bitmaps[2][next_time] < 40 and \
-        track_bitmaps[3][time] + track_bitmaps[3][next_time] >= 40 and \
-        track_bitmaps[4][time] + track_bitmaps[4][next_time] < 40 and \
-        track_bitmaps[5][time] + track_bitmaps[5][next_time] < 40 and \
-        track_bitmaps[6][time] + track_bitmaps[6][next_time] < 40
-    ):
-        return True
-    return False
-    
-    
-def is_movable(time, target_track_bitmap, min_gap):
-    forward_min_gap = max(0, time - min_gap)
-    for t in range(forward_min_gap + 1, time + 1):
-        if target_track_bitmap[t] == 5:
+def is_movable(time, target_track_bitmap):
+    for t in range(time - gc.MIN_GAP + 1, time + 1):
+        if t < 0:
+            continue
+        elif target_track_bitmap[t] == 5:
             return False
-    if target_track_bitmap[time] == 25 or target_track_bitmap[time] == 20:
-        return False
+    for t in range(time - gc.MIN_GAP_2 + 1, time + gc.MIN_GAP_2):
+        if t < 0 or t > len(target_track_bitmap) - 1:
+            continue
+        elif target_track_bitmap[t] == 25 or target_track_bitmap[t] == 20:
+            return False
     return True
     
     
@@ -175,21 +158,12 @@ def is_qie_a(track_bitmaps, time, target_track, time_list):
     return f1 and f2
     
     
-# def is_special_die_a(track_bitmaps, time, target_track, time_list):
-    pre_time, next_time = get_pre_next_time(time, time_list)
-    if pre_time and track_bitmaps[target_track][pre_time] >= 20:
-        return True
-    if next_time and track_bitmaps[target_track][next_time] >= 20:
-        return True
-    return False
-    
-    
 def get_track_next_time(target_track_bitmap, time):
     bitmap_length = len(target_track_bitmap)
     for t in range(time + 1, bitmap_length):
         if target_track_bitmap[t] >= 20:
             return t
-    return bitmap_length - 1
+    return bitmap_length - 1 + gc.MIN_GAP
     
     
 def generate_new_hitobject_line_2(original_line, new_x, time_list):
@@ -201,7 +175,6 @@ def generate_new_hitobject_line_2(original_line, new_x, time_list):
         parts[3] = "1"
     extras = parts[5].split(":")
     parts[5] = ":".join(extras[1:])
-    # parts[5] = "0:0:0:0:"
     return ",".join(parts)
     
     
