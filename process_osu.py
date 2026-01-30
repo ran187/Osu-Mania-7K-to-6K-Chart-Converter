@@ -121,17 +121,18 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
                     return new_line
                 
     else:
-        target_track = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6][0]
-        if a.is_movable(hitobject["start"], track_bitmaps[target_track]):
-            new_track = a.change_track_num(target_track)
-            new_x = 80 * new_track + 50
-            next_time = a.get_track_next_time(track_bitmaps[target_track], hitobject["start"])
-            if hitobject["start"] >= next_time - gc.MIN_GAP:
-                new_line = a.generate_new_hitobject_line_2(hitobject["original_line"], new_x, time_list)
-                return new_line
-            else:
-                new_end = min(next_time - gc.MIN_GAP, hitobject["end"])
-                new_line = a.generate_new_hitobject_line_3(hitobject["original_line"], new_x, new_end)
-                return new_line
-        else:
-            return None
+        return None
+        #target_track = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6][0]
+        #if a.is_movable(hitobject["start"], track_bitmaps[target_track]):
+        #    new_track = a.change_track_num(target_track)
+        #    new_x = 80 * new_track + 50
+        #    next_time = a.get_track_next_time(track_bitmaps[target_track], hitobject["start"])
+        #    if hitobject["start"] >= next_time - gc.MIN_GAP:
+        #        new_line = a.generate_new_hitobject_line_2(hitobject["original_line"], new_x, time_list)
+        #        return new_line
+        #    else:
+        #        new_end = min(next_time - gc.MIN_GAP, hitobject["end"])
+        #        new_line = a.generate_new_hitobject_line_3(hitobject["original_line"], new_x, new_end)
+        #        return new_line
+        #else:
+        #    return None
