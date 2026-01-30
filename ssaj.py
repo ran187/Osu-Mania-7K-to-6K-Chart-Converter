@@ -158,33 +158,33 @@ def is_qie_a(track_bitmaps, time, target_track, time_list):
     return f1 and f2
     
     
-def get_track_next_time(target_track_bitmap, time):
-    bitmap_length = len(target_track_bitmap)
-    for t in range(time + 1, bitmap_length):
-        if target_track_bitmap[t] >= 20:
-            return t
-    return bitmap_length - 1 + gc.MIN_GAP
+#def get_track_next_time(target_track_bitmap, time):
+#    bitmap_length = len(target_track_bitmap)
+#    for t in range(time + 1, bitmap_length):
+#        if target_track_bitmap[t] >= 20:
+#            return t
+#    return bitmap_length - 1 + gc.MIN_GAP
     
     
-def generate_new_hitobject_line_2(original_line, new_x, time_list):
-    parts = original_line.split(",")
-    parts[0] = str(new_x)
-    if int(parts[2]) == time_list[0]:
-        parts[3] = "5"
-    else:
-        parts[3] = "1"
-    extras = parts[5].split(":")
-    parts[5] = ":".join(extras[1:])
-    return ",".join(parts)
+#def generate_new_hitobject_line_2(original_line, new_x, time_list):
+#    parts = original_line.split(",")
+#    parts[0] = str(new_x)
+#    if int(parts[2]) == time_list[0]:
+#        parts[3] = "5"
+#    else:
+#        parts[3] = "1"
+#    extras = parts[5].split(":")
+#    parts[5] = ":".join(extras[1:])
+#    return ",".join(parts)
     
     
-def generate_new_hitobject_line_3(original_line, new_x, new_end):
-    parts = original_line.split(",")
-    parts[0] = str(new_x)
-    extras = parts[5].split(":")
-    extras[0] = str(new_end)
-    parts[5] = ":".join(extras)
-    return ",".join(parts)
+#def generate_new_hitobject_line_3(original_line, new_x, new_end):
+#    parts = original_line.split(",")
+#    parts[0] = str(new_x)
+#    extras = parts[5].split(":")
+#    extras[0] = str(new_end)
+#    parts[5] = ":".join(extras)
+#    return ",".join(parts)
     
     
 def clean_line(line):
@@ -212,6 +212,6 @@ def binary_search(seq, num):
             left = mid + 1
         else:
             right = mid - 1
-    return -1                                    
+#    return -1                                    
     
     
