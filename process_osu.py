@@ -93,14 +93,12 @@ def modify_hitobjects_block(hitobjects_lines):
     
     
 def trans_4th_track(track_bitmaps, time_list, hitobject):
+    key_num = a.get_key_num(track_bitmaps, hitobject["start"])
+
     if not hitobject["is_hold"]:
-        key_num = a.get_key_num(track_bitmaps, hitobject["start"])
         if key_num in range(2, 8):
             return None
-        elif(
-            key_num == 1 and \
-            a.is_qie_a(track_bitmaps, hitobject["start"], 3, time_list)
-        ):
+        elif a.is_qie_a(track_bitmaps, hitobject["start"], 3, time_list):
             track_seq = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6]
             for track_idx in track_seq:
                 if(
@@ -120,8 +118,16 @@ def trans_4th_track(track_bitmaps, time_list, hitobject):
                     new_line = a.generate_new_hitobject_line_1(hitobject["original_line"], new_x)
                     return new_line
                 
-    else:
-        return None
+    elif hitobject["is_hold"]:
+        if key_num == 1:
+            track_seq = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6]
+            for track_idx in track_seq:
+                if a.is_movable(hitobject["start"], track_bitmaps[track_idx]):
+                    new_track = a.change_track_num(track_idx)
+                    new_x = 80 * new_track + 50
+                    new_line = a.generate_new_hitobject_line_2(hitobject["original_line"], new_x, time_list)
+                    return new_line
+                
         #target_track = gc.RANDOM_SEQUENCE_6[hitobject["start"] % 6][0]
         #if a.is_movable(hitobject["start"], track_bitmaps[target_track]):
         #    new_track = a.change_track_num(target_track)
