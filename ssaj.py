@@ -166,16 +166,16 @@ def is_qie_a(track_bitmaps, time, target_track, time_list):
 #    return bitmap_length - 1 + gc.MIN_GAP
     
     
-#def generate_new_hitobject_line_2(original_line, new_x, time_list):
-#    parts = original_line.split(",")
-#    parts[0] = str(new_x)
-#    if int(parts[2]) == time_list[0]:
-#        parts[3] = "5"
-#    else:
-#        parts[3] = "1"
-#    extras = parts[5].split(":")
-#    parts[5] = ":".join(extras[1:])
-#    return ",".join(parts)
+def generate_new_hitobject_line_2(original_line, new_x, time_list):
+    parts = original_line.split(",")
+    parts[0] = str(new_x)
+    if int(parts[2]) == time_list[0]:
+        parts[3] = "5"
+    else:
+        parts[3] = "1"
+    extras = parts[5].split(":")
+    parts[5] = ":".join(extras[1:])
+    return ",".join(parts)
     
     
 #def generate_new_hitobject_line_3(original_line, new_x, new_end):
